@@ -1,0 +1,9 @@
+Package: guano
+Type: Package
+Title: Reads bat acoustic metadata in GUANO format
+Version: 0.1
+Date: 2017-02-25
+Author: David A. Riggs
+Maintainer: David A. Riggs <driggs@myotisoft.com>
+Description: This package allows reading GUANO metadata attributes from bat acoustic recordings.
+License: MIT
