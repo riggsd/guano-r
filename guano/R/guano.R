@@ -10,11 +10,12 @@
     return(strptime(s, "%Y-%m-%dT%H:%M:%S", tz="UTC"))
   } else if (length(gregexpr(":", s)[[1]]) == 3) {
     # UTC offset
-    s <- paste(substr(s, 1, nchar(s)-3), substr(s, nchar(s)-1, nchar(s)), sep="")
+    len <- nchar(s)
+    s <- paste(substr(s, 1, len-3), substr(s, len-1, len), sep="")
     return(strptime(s, "%Y-%m-%dT%H:%M:%S%z"))
   } else {
     # local
-    return(strptime(s, "%Y-%m-%dT%H:%M:%S", tz=""))
+    return(strptime(s, "%Y-%m-%dT%H:%M:%S"))
   }
 }
 
@@ -31,24 +32,22 @@ data.types <- list(
 #' @param filename The GUANO filename or path
 #' @return list of named metadata fields
 read.guano <- function(filename) {
-  print(filename)
   f <- file(filename, "rb")
-  riff.id <- readChar(f, 4)  # "RIFF"
-  print(riff.id)
+  riff.id <- readChar(f, 4)
+  if (length(riff.id) == 0 || riff.id != "RIFF") return(NULL)
   riff.size <- readBin(f, integer(), size=4, endian="little")
-  print(riff.size)
   wave.id <- readChar(f, 4)  # "WAVE"
-  print(wave.id)
-
+  if (length(wave.id) == 0 || wave.id != "WAVE") return(NULL)
+  
   read.subchunk <- function() {
     id <- readChar(f, 4)
-    if (id == "") return(NULL)
+    if (length(id) == 0 || id == "") return(NULL)
     size <- readBin(f, integer(), size=4, endian="little")
     list(id=id, size=size)
   }
   
   skip.subchunk <- function(chunk) {
-    print(sprintf("Skipping subchunk '%s' ...", chunk$id))
+    #print(sprintf("Skipping subchunk '%s' ...", chunk$id))
     pos <- seek(f, NA)
     seek(f, pos + chunk$size)
   }
@@ -61,8 +60,7 @@ read.guano <- function(filename) {
       next
     }
     md.txt <- readChar(f, chunk$size)
-    Encoding(md.txt) <- "UTF-8"
-    print(Encoding(md.txt))  # FIXME: why isn't the encoding set to UTF-8?!
+    Encoding(md.txt) <- "UTF-8"  # FIXME: this still isn't setting the encoding to UTF-8
     for (line in strsplit(md.txt, "\n")[[1]]) {
       line <- trimws(line)
       if (line == "") {
@@ -86,21 +84,35 @@ read.guano <- function(filename) {
 #' Read all GUANO file in a directory as a single dataframe
 #' 
 #' @param dirname The directory name (or path) which contains GUANO files
+#' @param pattern An optional glob pattern. Only files names which match will be returned (default "*.wav")
+#' @param recursive logical. Should we recurse into sub-directories?
 #' @return dataframe with metadata attributes as columns
-read.guano.dir <- function(dirname) {
-  dirname
+read.guano.dir <- function(dirname, pattern="*.wav", recursive=FALSE) {
+  files <- list.files(dirname, pattern, full.names=TRUE, recursive=recursive, ignore.case=TRUE)
+  result <- vector("list", length(files))
+  for (i in 1:length(files)) {
+    print(files[i])
+    md <- read.guano(files[i])
+    result[[i]] <- md
+  }
+  return(result)
 }
 
 
 ## EXAMPLE USAGE
 
 # Set custom metadata type coercion rules
-integer.list <- function(x) lapply(strsplit(x, ","), as.integer)
-double.list  <- function(x) lapply(strsplit(x, ","), as.double)
-data.types[["BAT|SampleStart"]] <- integer.list
-data.types[["BAT|Ts"]] <- double.list
-data.types[["BAT|SINR"]] <- double.list
+#integer.list <- function(x) lapply(strsplit(x, ","), as.integer)
+#double.list  <- function(x) lapply(strsplit(x, ","), as.double)
+#data.types[["BAT|SampleStart"]] <- integer.list
+#data.types[["BAT|Ts"]] <- double.list
+#data.types[["BAT|SINR"]] <- double.list
 
 # Parse some GUANO files
-md <- read.guano("test.wav")
-print(md$Timestamp)
+#md <- read.guano("test.wav")
+#print(md$Timestamp)
+
+#md <- read.guano("/Users/driggs/workspace/batutils/testdata/sonobat4.1/FrioRvrBigSpgsRanchTX-Lwr-1920140308_232208-Myve.wav")
+#print(md)
+#res <- read.guano.dir("/Users/driggs/workspace/batutils/testdata/sonobat4.1")
+#print(res)
