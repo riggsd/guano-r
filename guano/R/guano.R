@@ -3,10 +3,26 @@
 # You may use, distribute, and modify this code under the terms of the MIT License.
 
 
+#' Parse ISO 8601 subset timestamps
+.parse.timestamp <- function(s) {
+  if (endsWith(s, "Z")) {
+    # UTC
+    return(strptime(s, "%Y-%m-%dT%H:%M:%S", tz="UTC"))
+  } else if (length(gregexpr(":", s)[[1]]) == 3) {
+    # UTC offset
+    s <- paste(substr(s, 1, nchar(s)-3), substr(s, nchar(s)-1, nchar(s)), sep="")
+    return(strptime(s, "%Y-%m-%dT%H:%M:%S%z"))
+  } else {
+    # local
+    return(strptime(s, "%Y-%m-%dT%H:%M:%S", tz=""))
+  }
+}
+
+
 #' Maps metadata keys to a data type coercion function
 data.types <- list(
   `Filter HP`=double, Length=double, `Loc Elevation`=double, `Loc Accuracy`=integer,
-  TE=integer
+  TE=integer, Timestamp=.parse.timestamp
 )
 
 
@@ -87,4 +103,4 @@ data.types[["BAT|SINR"]] <- double.list
 
 # Parse some GUANO files
 md <- read.guano("test.wav")
-print(md)
+print(md$Timestamp)
