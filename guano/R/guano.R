@@ -114,5 +114,5 @@ read.guano.dir <- function(dirname, pattern="*.wav", recursive=FALSE) {
 
 #md <- read.guano("/Users/driggs/workspace/batutils/testdata/sonobat4.1/FrioRvrBigSpgsRanchTX-Lwr-1920140308_232208-Myve.wav")
 #print(md)
-res <- read.guano.dir("/Users/driggs/workspace/batutils/testdata/sonobat4.1")
-print(res)
+#res <- read.guano.dir("/Users/driggs/workspace/batutils/testdata/sonobat4.1")
+#print(res)
