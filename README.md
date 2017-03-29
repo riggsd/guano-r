@@ -7,7 +7,7 @@ An R package for reading GUANO bat acoustic metadata.
 
 ## Installation
 
-Please don't use this code yet!
+This code should still be considered "example quality"!
 
 ```r
 install.packages("devtools")
