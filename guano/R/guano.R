@@ -5,7 +5,9 @@
 
 #' Parse ISO 8601 subset timestamps
 .parse.timestamp <- function(s) {
-  if (endsWith(s, "Z")) {
+  if (is.na(s) || is.null(s) || s == "") {
+    return(NA)
+  } else if (endsWith(s, "Z")) {
     # UTC
     return(strptime(s, "%Y-%m-%dT%H:%M:%S", tz="UTC"))
   } else if (length(gregexpr(":", s)[[1]]) == 3) {
@@ -22,8 +24,20 @@
 
 #' Maps metadata keys to a data type coercion function
 data.types <- list(
-  `Filter HP`=double, Length=double, `Loc Elevation`=double, `Loc Accuracy`=integer,
-  TE=integer, Timestamp=.parse.timestamp
+  `Filter HP`=as.double,
+  `Filter LP`=as.double,
+  Humidity=as.double,
+  Length=as.double,
+  `Loc Accuracy`=as.integer,
+  `Loc Elevation`=as.double,
+  `Loc Position`=function(val) lapply(strsplit(val, " "), as.double)[[1]],
+  Note=function(val) gsub("\\\\n", "\n", val),
+  Samplerate=as.integer,
+  #`Species Auto ID`=?, `Species Manual ID`=?,  # TODO: comma separated
+  #Tags=?,  # TODO: comma separated
+  TE=function(val) if (is.na(val) || is.null(val) || val == "") 1 else as.integer(val),
+  `Temperature Ext`=as.double, `Temperature Int`=as.double,
+  Timestamp=.parse.timestamp
 )
 
 
@@ -69,6 +83,9 @@ read.guano <- function(filename) {
       toks <- strsplit(sub(":", "\n", line), "\n")
       key <- trimws(toks[[1]][1])
       val <- trimws(toks[[1]][2])
+      if (is.na(key) || is.null(key) || key == "") {
+        next
+      }
       if (!is.null(data.types[[key]])) {
         val <- data.types[[key]](val)
       }
