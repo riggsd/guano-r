@@ -109,7 +109,7 @@ read.guano.dir <- function(dirname, pattern="*.wav", recursive=FALSE) {
   # read GUANO metadata as a one-row dataframe for each file
   metadatas <- lapply(lapply(as.list(filenames), read.guano), as.data.frame)
   # merge all into one dataframe, filling in missing fields with NA
-  do.call(rbind.fill, metadatas)
+  do.call(plyr::rbind.fill, metadatas)
 }
 
 
