@@ -73,6 +73,8 @@ read.guano <- function(filename) {
       skip.subchunk(chunk)
       next
     }
+    md[["File Path"]] <- normalizePath(filename)
+    md[["File Name"]] <- basename(filename)
     md.txt <- readChar(f, chunk$size)
     Encoding(md.txt) <- "UTF-8"  # FIXME: this still isn't setting the encoding to UTF-8
     for (line in strsplit(md.txt, "\n")[[1]]) {
@@ -109,7 +111,8 @@ read.guano.dir <- function(dirname, pattern="*.wav", recursive=FALSE) {
   # read GUANO metadata as a one-row dataframe for each file
   metadatas <- lapply(lapply(as.list(filenames), read.guano), as.data.frame)
   # merge all into one dataframe, filling in missing fields with NA
-  do.call(plyr::rbind.fill, metadatas)
+  df <- do.call(plyr::rbind.fill, metadatas)
+  return(df)
 }
 
 
