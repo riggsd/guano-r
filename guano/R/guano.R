@@ -105,14 +105,11 @@ read.guano <- function(filename) {
 #' @param recursive logical. Should we recurse into sub-directories?
 #' @return dataframe with metadata attributes as columns
 read.guano.dir <- function(dirname, pattern="*.wav", recursive=FALSE) {
-  files <- list.files(dirname, glob2rx(pattern), full.names=TRUE, recursive=recursive, ignore.case=TRUE)
-  result <- vector("list", length(files))
-  for (i in 1:length(files)) {
-    print(files[i])
-    md <- read.guano(files[i])
-    result[[i]] <- md
-  }
-  return(result)
+  filenames <- list.files(dirname, glob2rx(pattern), full.names=TRUE, recursive=recursive, ignore.case=TRUE)
+  # read GUANO metadata as a one-row dataframe for each file
+  metadatas <- lapply(lapply(as.list(filenames), read.guano), as.data.frame)
+  # merge all into one dataframe, filling in missing fields with NA
+  do.call(rbind.fill, metadatas)
 }
 
 
@@ -132,4 +129,4 @@ read.guano.dir <- function(dirname, pattern="*.wav", recursive=FALSE) {
 #md <- read.guano("/Users/driggs/workspace/batutils/testdata/sonobat4.1/FrioRvrBigSpgsRanchTX-Lwr-1920140308_232208-Myve.wav")
 #print(md)
 #res <- read.guano.dir("/Users/driggs/workspace/batutils/testdata/sonobat4.1")
-#print(res)
+#View(res)
