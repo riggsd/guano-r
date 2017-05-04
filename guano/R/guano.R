@@ -30,7 +30,6 @@ data.types <- list(
   Length=as.double,
   `Loc Accuracy`=as.integer,
   `Loc Elevation`=as.double,
-  `Loc Position`=function(val) lapply(strsplit(val, " "), as.double)[[1]],
   Note=function(val) gsub("\\\\n", "\n", val),
   Samplerate=as.integer,
   #`Species Auto ID`=?, `Species Manual ID`=?,  # TODO: comma separated
@@ -92,6 +91,12 @@ read.guano <- function(filename) {
         val <- data.types[[key]](val)
       }
       md[[key]] <- val
+    }
+    if ("Loc Position" %in% names(md)) {
+      coords <- lapply(strsplit(md[["Loc Position"]], " "), as.double)[[1]]
+      md[["Loc Position Lat"]] <- coords[1]
+      md[["Loc Position Lon"]] <- coords[2]
+      md[["Loc Position"]] <- NULL
     }
   }
 

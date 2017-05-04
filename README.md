@@ -52,6 +52,24 @@ df <- read.guano.dir("/Users/driggs/bat_calls/", recursive=TRUE)
 View(df)
 ```
 
+
+Work with bat calls in the geospatial domain:
+
+```r
+library("sp")
+
+# remove all bat calls which don't have a GPS point
+purged.df <- df[!is.na(df[["Loc.Position.Lat"]]),]
+
+# extract the coordinates
+xy <- purged.df[,c("Loc.Position.Lon", "Loc.Position.Lat")]
+
+# produce a spatial dataframe ready for GIS analysis
+wgs84 <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+spdf <- SpatialPointsDataFrame(xy, purged.df, proj4string=wgs84)
+plot(spdf)
+```
+
 ## License
 
 You may use, distribute, and modify this code under the terms of the [MIT License](https://opensource.org/licenses/MIT).
