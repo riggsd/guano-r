@@ -119,22 +119,3 @@ read.guano.dir <- function(dirname, pattern="*.wav", recursive=FALSE) {
   df <- do.call(plyr::rbind.fill, metadatas)
   return(df)
 }
-
-
-## EXAMPLE USAGE
-
-# Set custom metadata type coercion rules
-#integer.list <- function(x) lapply(strsplit(x, ","), as.integer)
-#double.list  <- function(x) lapply(strsplit(x, ","), as.double)
-#data.types[["BAT|SampleStart"]] <- integer.list
-#data.types[["BAT|Ts"]] <- double.list
-#data.types[["BAT|SINR"]] <- double.list
-
-# Parse some GUANO files
-#md <- read.guano("test.wav")
-#print(md$Timestamp)
-
-#md <- read.guano("/Users/driggs/workspace/batutils/testdata/sonobat4.1/FrioRvrBigSpgsRanchTX-Lwr-1920140308_232208-Myve.wav")
-#print(md)
-#res <- read.guano.dir("/Users/driggs/workspace/batutils/testdata/sonobat4.1")
-#View(res)
