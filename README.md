@@ -11,9 +11,16 @@ This code should still be considered "example quality"!
 
 ```r
 install.packages("devtools")
-devtools::install_github("riggsd/guano-r")
+devtools::install_github("riggsd/guano-r", subdir="guano")
 
 library("guano")
+```
+
+Note: If installation from GitHub fails with "Peer certificate cannot be authenticated", as on some corporate networks, run the following commands before `install_github`:
+
+```r
+library(httr)
+set_config(config(ssl_verifypeer=0L))
 ```
 
 ## Example Usage
