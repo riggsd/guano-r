@@ -9,3 +9,4 @@ Description: This package allows reading GUANO metadata attributes from bat acou
 License: MIT
 RoxygenNote: 6.0.1
 Imports: plyr
+Suggests: testthat

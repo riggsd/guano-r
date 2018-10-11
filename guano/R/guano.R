@@ -5,7 +5,7 @@
 
 #' Parse ISO 8601 subset timestamps
 .parse.timestamp <- function(s) {
-  if (is.na(s) || is.null(s) || s == "") {
+  if (is.null(s) || is.na(s) || s == "") {
     return(NA)
   } else if (endsWith(s, "Z")) {
     # UTC
@@ -13,8 +13,9 @@
   } else if (length(gregexpr(":", s)[[1]]) == 3) {
     # UTC offset
     len <- nchar(s)
-    s <- paste(substr(s, 1, len-3), substr(s, len-1, len), sep="")
-    return(strptime(s, "%Y-%m-%dT%H:%M:%S%z"))
+    utc_offset <- strtoi(substr(s, len-5, len-3), base=10)      # UTC offset hours, eg: 4
+    tz <- paste("Etc/GMT", sprintf("%+d", utc_offset), sep="")  # timezone, eg: "Etc/GMT+4"
+    return(strptime(s, "%Y-%m-%dT%H:%M:%S", tz=tz))
   } else {
     # local
     return(strptime(s, "%Y-%m-%dT%H:%M:%S"))
