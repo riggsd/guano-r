@@ -56,7 +56,13 @@ read.guano <- function(filename) {
   read.subchunk <- function() {
     id <- readChar(f, 4)
     if (length(id) == 0 || id == "") return(NULL)
-    size <- readBin(f, integer(), size=4, endian="little")
+    
+    # Read 4 raw bytes and reconstruct as unsigned 32-bit integer (little-endian)
+    # into double because R doesn't have a uint32 type. Supports > 2gb .WAV files.
+    size_raw <- readBin(f, raw(), n = 4)
+    size <- sum(as.double(size_raw) * (256 ^ (0:3)))
+    
+    #print(sprintf("Subchunk '%s' size %.0f", id, size))
     list(id=id, size=size)
   }
   
